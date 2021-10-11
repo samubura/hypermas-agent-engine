@@ -1,1 +1,1 @@
-rootProject.name = "starter"
+rootProject.name = "hypermas-agent-engine"

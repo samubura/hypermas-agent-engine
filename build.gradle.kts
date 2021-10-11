@@ -17,7 +17,7 @@ repositories {
 val vertxVersion = "4.1.5"
 val junitJupiterVersion = "5.7.0"
 
-val mainVerticleName = "com.example.starter.MainVerticle"
+val mainVerticleName = "ServerLauncher"
 val launcherClassName = "io.vertx.core.Launcher"
 
 val watchForChange = "src/**/*"
