@@ -1,0 +1,7 @@
+.gradle
+log/*
+build/*
+src/agt/*
+
+!src/agt/sample.asl
+!sample.jcm
