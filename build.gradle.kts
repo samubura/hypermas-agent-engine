@@ -28,6 +28,7 @@ application {
 }
 
 dependencies {
+  implementation("commons-io:commons-io:2.11.0")
   implementation(platform("io.vertx:vertx-stack-depchain:$vertxVersion"))
   implementation("io.vertx:vertx-web")
   testImplementation("io.vertx:vertx-junit5")

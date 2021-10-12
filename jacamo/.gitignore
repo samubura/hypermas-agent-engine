@@ -1,0 +1,5 @@
+src/agt/*
+*.jcm
+
+!_sample.jcm
+!src/agt/_sample.asl
