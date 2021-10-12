@@ -15,19 +15,23 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 class JacamoFileManager implements JacamoStorageManager {
-
-  private static final Path JACAMO_ROOT_FOLDER = FileSystems.getDefault().getPath("jacamo");
-  private static final Path AGENT_FOLDER = Path.of(JACAMO_ROOT_FOLDER.toString(), "src", "agt");
+  private final Path agentFolder;
+  private final Path jacamoRootFolder;
   public static final String CHARSET = "UTF-8";
+
+  public JacamoFileManager(Path jacamoRoot){
+    this.jacamoRootFolder = jacamoRoot;
+    this.agentFolder = Path.of(jacamoRoot.toString(), "src", "agt");
+  }
 
   @Override
   public List<String> getAvailableAgents() {
-    return getNamesFromFileSystem(AGENT_FOLDER, (dir,name) -> name.endsWith(".asl"));
+    return getNamesFromFileSystem(agentFolder, (dir, name) -> name.endsWith(".asl"));
   }
 
   @Override
   public List<String> getAvailableMas() {
-    return getNamesFromFileSystem(JACAMO_ROOT_FOLDER, (dir,name) -> name.endsWith(".jcm"));
+    return getNamesFromFileSystem(jacamoRootFolder, (dir,name) -> name.endsWith(".jcm"));
   }
 
   @Override
@@ -63,11 +67,11 @@ class JacamoFileManager implements JacamoStorageManager {
   }
 
   private File getAgentFile(String agentId){
-    return Path.of(AGENT_FOLDER.toString(), agentId+".asl").toFile();
+    return Path.of(agentFolder.toString(), agentId+".asl").toFile();
   }
 
   private File getMasFile(String masId){
-    return Path.of(JACAMO_ROOT_FOLDER.toString(), masId+".jcm").toFile();
+    return Path.of(jacamoRootFolder.toString(), masId+".jcm").toFile();
   }
 
   private boolean writeFile(File file, String content){

@@ -1,8 +1,8 @@
 /*
-   Project jacamo
+   Project something
 
    Gradle build file for JaCaMo Applications
-   ottobre 12, 2021 - 10:34:01
+   ottobre 12, 2021 - 18:24:21
 */
 
 defaultTasks 'run'
@@ -54,7 +54,7 @@ task run (type: JavaExec, dependsOn: 'classes') {
         mkdir 'log'
     }
     main 'jacamo.infra.JaCaMoLauncher'
-    args 'jacamo.jcm'
+    args 'sample.jcm'
     // jvmArgs '-Xss15m'
     classpath sourceSets.main.runtimeClasspath
 }
@@ -67,7 +67,7 @@ task uberJar(type: Jar, dependsOn: 'classes') {
     manifest {
         attributes 'Main-Class': 'jacamo.infra.JaCaMoLauncher'
     }
-    baseName = 'jacamo-jacamo' // the name must start with jacamo so that jacamo...jar is found in the classpath
+    baseName = 'jacamo-something' // the name must start with jacamo so that jacamo...jar is found in the classpath
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     from (project.projectDir.absolutePath) {
         include '**/*.asl'
@@ -83,8 +83,8 @@ task uberJar(type: Jar, dependsOn: 'classes') {
 
     doFirst {
         copy {
-            from 'jacamo.jcm'
-            rename 'jacamo.jcm','default.jcm'
+            from 'sample.jcm'
+            rename 'sample.jcm','default.jcm'
             into project.buildDir.absolutePath + '/jcm'
         }
     }

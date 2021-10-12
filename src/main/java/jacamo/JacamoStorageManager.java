@@ -5,10 +5,6 @@ import java.util.Optional;
 
 public interface JacamoStorageManager {
 
-  static JacamoStorageManager create(){
-    return new JacamoFileManager();
-  }
-
   List<String> getAvailableAgents();
 
   List<String> getAvailableMas();

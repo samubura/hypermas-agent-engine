@@ -176,11 +176,21 @@ public class EngineRouter {
   }
 
   private void handleRunMas(RoutingContext ctx) {
-    ctx.response().setStatusCode(HttpResponseStatus.NOT_IMPLEMENTED.code()).end();
+    if(this.jacamoManager.isMasRunning()){
+      ctx.response().setStatusCode(HttpResponseStatus.FORBIDDEN.code()).end();
+      return;
+    }
+    this.jacamoManager.runMas(ctx.pathParam("masId"));
+    ctx.response().setStatusCode(HttpResponseStatus.OK.code()).end();
   }
 
   private void handleStopMas(RoutingContext ctx) {
-    ctx.response().setStatusCode(HttpResponseStatus.NOT_IMPLEMENTED.code()).end();
+    if(!this.jacamoManager.isMasRunning()){
+      ctx.response().setStatusCode(HttpResponseStatus.FORBIDDEN.code()).end();
+      return;
+    }
+    this.jacamoManager.stopMas(ctx.pathParam("masId"));
+    ctx.response().setStatusCode(HttpResponseStatus.OK.code()).end();
   }
 
   private JsonObject getMasDTO(MasDefinition mas, boolean isRunning){
