@@ -1,8 +1,4 @@
-mas something {
-
-    agent sample
-
-    
-
+mas sample {
+    agent sample : sample.asl
 }
 

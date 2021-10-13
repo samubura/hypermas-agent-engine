@@ -2,6 +2,7 @@
 log/*
 build/*
 src/agt/*
+*.jcm
 
 !src/agt/sample.asl
 !sample.jcm

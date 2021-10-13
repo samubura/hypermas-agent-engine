@@ -6,11 +6,11 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import jacamo.JacamoManager;
-import jacamo.MasDefinition;
+import jacamo.model.AgentDefinition;
+import jacamo.model.AgentSource;
+import jacamo.model.MasDefinition;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class EngineRouter {
 
@@ -74,7 +74,7 @@ public class EngineRouter {
   }
 
   private void handleGetAgentList(RoutingContext ctx) {
-    List<String> agents = jacamoManager.getStorage().getAvailableAgents();
+    List<String> agents = new ArrayList<>(jacamoManager.getStorage().getAvailableAgents());
     ctx.response().setStatusCode(HttpResponseStatus.OK.code())
       .end(new JsonObject()
         .put("agents", new JsonArray(agents))
@@ -87,26 +87,27 @@ public class EngineRouter {
     String id = body.getString("id");
     String code = body.getString("code");
     String xml = body.getString("xml");
+    AgentSource agent = new AgentSource(id, code);
 
     if(!jacamoManager.acceptAgentId(id)){
       ctx.response().setStatusCode(HttpResponseStatus.BAD_REQUEST.code()).end();
     }
 
-    if(!jacamoManager.getStorage().saveAgentCode(id, code)){
+    if(!jacamoManager.getStorage().saveAgent(agent)){
       ctx.response().setStatusCode(HttpResponseStatus.INTERNAL_SERVER_ERROR.code()).end();
     }
 
     ctx.response()
       .putHeader("Location", ctx.normalizedPath()+"/"+id)
       .setStatusCode(HttpResponseStatus.CREATED.code())
-      .end(getAgentDTO(id, code, xml).encode());
+      .end(getAgentSourceDTO(agent, xml).encode());
   }
 
   private void handleGetAgent(RoutingContext ctx) {
     String id = ctx.pathParam("agentId");
 
-    Optional<String> code = jacamoManager.getStorage().getAgentCode(id);
-    if(code.isEmpty()){
+    Optional<AgentSource> agent = jacamoManager.getStorage().getAgent(id);
+    if(agent.isEmpty()){
         ctx.response().setStatusCode(HttpResponseStatus.NOT_FOUND.code()).end();
         return;
     }
@@ -114,11 +115,11 @@ public class EngineRouter {
 
     ctx.response()
       .setStatusCode(HttpResponseStatus.OK.code())
-      .end(getAgentDTO(id, code.get(), xml).encode());
+      .end(getAgentSourceDTO(agent.get(), xml).encode());
   }
 
   private void handleGetMasList(RoutingContext ctx) {
-    List<String> masList = jacamoManager.getStorage().getAvailableMas();
+    List<String> masList = new ArrayList<>(jacamoManager.getStorage().getAvailableMas());
     ctx.response().setStatusCode(HttpResponseStatus.OK.code())
       .end(new JsonObject()
         .put("mas", new JsonArray(masList))
@@ -129,12 +130,13 @@ public class EngineRouter {
   private void handlePostMas(RoutingContext ctx){
     JsonObject body = ctx.getBodyAsJson();
     String id = body.getString("id");
-    JsonArray agents = body.getJsonArray("agents");
-    List<String> agentNames = new ArrayList<>();
-    for (int i = 0; i < agents.size(); i++) {
-      agentNames.add(agents.getString(i));
+    JsonArray agentsArray = body.getJsonArray("agents");
+    Set<AgentDefinition> agents = new HashSet<>();
+    for (int i = 0; i < agentsArray.size(); i++) {
+      JsonObject obj = agentsArray.getJsonObject(i);
+      agents.add(new AgentDefinition(obj.getString("name"), obj.getString("type")));
     }
-    if(agentNames.isEmpty()){
+    if(agents.isEmpty()){
       ctx.response().setStatusCode(HttpResponseStatus.BAD_REQUEST.code()).end();
       return;
     }
@@ -143,7 +145,7 @@ public class EngineRouter {
       return;
     }
 
-    MasDefinition newMas = new MasDefinition(id, agentNames);
+    MasDefinition newMas = new MasDefinition(id, agents);
     if(!this.jacamoManager.getStorage().saveMas(newMas)){
       ctx.response().setStatusCode(HttpResponseStatus.INTERNAL_SERVER_ERROR.code()).end();
       return;
@@ -194,16 +196,24 @@ public class EngineRouter {
   }
 
   private JsonObject getMasDTO(MasDefinition mas, boolean isRunning){
+    JsonArray agents = new JsonArray();
+    mas.getAgents().stream().map(this::getAgentDefinitionDTO).forEach(agents::add);
     return new JsonObject()
       .put("masId", mas.getId())
-      .put("agents", new JsonArray(mas.getAgents()))
+      .put("agents", agents)
       .put("running", isRunning);
   }
 
-  private JsonObject getAgentDTO(String id, String code, String xml){
-    return new JsonObject().clear()
-      .put("agentName", id)
-      .put("code", code)
+  private JsonObject getAgentDefinitionDTO(AgentDefinition agent){
+    return new JsonObject()
+      .put("name", agent.getName())
+      .put("type", agent.getType());
+  }
+
+  private JsonObject getAgentSourceDTO(AgentSource agent, String xml){
+    return new JsonObject()
+      .put("agentName", agent.getId())
+      .put("code", agent.getCode())
       .put("xml", xml);
   }
 

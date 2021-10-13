@@ -1,5 +1,8 @@
 package jacamo;
 
+import jacamo.storage.JacamoStorage;
+import jacamo.storage.JacamoStorageInterface;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -14,7 +17,7 @@ public class JacamoManager {
   private static final String RESERVED_MAS_NAME = "sample";
   private static JacamoManager INSTANCE = null;
 
-  private final JacamoStorageManager storage;
+  private final JacamoStorageInterface storage;
   private Optional<String> runningMasId;
   private Optional<Process> runningMasProcess;
 
@@ -27,10 +30,10 @@ public class JacamoManager {
 
   private JacamoManager(){
     this.runningMasId = Optional.empty();
-    this.storage = new JacamoFileManager(JACAMO_ROOT_FOLDER);
+    this.storage = new JacamoStorage(JACAMO_ROOT_FOLDER);
   }
 
-  public JacamoStorageManager getStorage(){
+  public JacamoStorageInterface getStorage(){
     return this.storage;
   }
 
