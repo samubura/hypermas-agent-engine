@@ -44,17 +44,15 @@ public class JacamoManager {
   }
 
   public void runMas(String id){
+    System.out.println("Starting mas " + id);
     if (!this.isMasRunning()) {
       this.runningMasId = Optional.of(id);
       try {
-        File log = new File("jacamo.log");
-        log.createNewFile();
         this.runningMasProcess = Optional.of(
           new ProcessBuilder()
             .directory(JACAMO_ROOT_FOLDER.toFile())
             .command(runnableCommand, "run", "--args", id+".jcm", "-q", "--console=\"plain\"")
             .redirectErrorStream(true)
-            .redirectOutput(log)
             .start()
         );
       } catch (IOException e) {
@@ -64,6 +62,7 @@ public class JacamoManager {
   }
 
   public void stopMas(String id){
+    System.out.println("mas "+ id +" stopped");
     if (this.isMasRunning()){
       this.runningMasId = Optional.empty();
       this.runningMasProcess
