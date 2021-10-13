@@ -20,6 +20,7 @@ public class JacamoManager {
   private final JacamoStorageInterface storage;
   private Optional<String> runningMasId;
   private Optional<Process> runningMasProcess;
+  private final String runnableCommand;
 
   public static JacamoManager getInstance(){
     if(INSTANCE == null){
@@ -31,6 +32,7 @@ public class JacamoManager {
   private JacamoManager(){
     this.runningMasId = Optional.empty();
     this.storage = new JacamoStorage(JACAMO_ROOT_FOLDER);
+    this.runnableCommand = getRunnableCommand();
   }
 
   public JacamoStorageInterface getStorage(){
@@ -50,7 +52,7 @@ public class JacamoManager {
         this.runningMasProcess = Optional.of(
           new ProcessBuilder()
             .directory(JACAMO_ROOT_FOLDER.toFile())
-            .command("gradlew.bat", "run", "--args", id+".jcm", "-q", "--console=\"plain\"")
+            .command(runnableCommand, "run", "--args", id+".jcm", "-q", "--console=\"plain\"")
             .redirectErrorStream(true)
             .redirectOutput(log)
             .start()
@@ -64,7 +66,9 @@ public class JacamoManager {
   public void stopMas(String id){
     if (this.isMasRunning()){
       this.runningMasId = Optional.empty();
-      this.runningMasProcess.ifPresent(Process::destroy);
+      this.runningMasProcess
+        .map(Process::descendants)
+        .ifPresent(processHandleStream -> processHandleStream.forEach(ProcessHandle::destroy));
       this.runningMasProcess = Optional.empty();
     }
   }
@@ -79,5 +83,13 @@ public class JacamoManager {
 
   public boolean acceptMasId(String id){
     return !id.equals(RESERVED_MAS_NAME);
+  }
+
+  private String getRunnableCommand(){
+    if(System.getProperty("os.name").toLowerCase().contains("windows")){
+      return "gradlew.bat";
+    } else {
+      return "./gradlew";
+    }
   }
 }
