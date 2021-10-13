@@ -22,7 +22,7 @@ repositories {
     //maven { url "http://jacamo.sourceforge.net/maven2" }
     maven { url "https://repo.gradle.org/gradle/libs-releases-local" }
     //maven { url "https://jade.tilab.com/maven/" }
-    
+
     flatDir { dirs 'lib' }
 
     mavenCentral()
@@ -54,7 +54,6 @@ task run (type: JavaExec, dependsOn: 'classes') {
         mkdir 'log'
     }
     main 'jacamo.infra.JaCaMoLauncher'
-    args 'sample.jcm'
     // jvmArgs '-Xss15m'
     classpath sourceSets.main.runtimeClasspath
 }

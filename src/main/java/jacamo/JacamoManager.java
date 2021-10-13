@@ -50,7 +50,7 @@ public class JacamoManager {
         this.runningMasProcess = Optional.of(
           new ProcessBuilder()
             .directory(JACAMO_ROOT_FOLDER.toFile())
-            .command("gradlew.bat", "-q", "--console=\"plain\"")
+            .command("gradlew.bat", "run", "--args", id+".jcm", "-q", "--console=\"plain\"")
             .redirectErrorStream(true)
             .redirectOutput(log)
             .start()
