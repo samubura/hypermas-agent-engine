@@ -1,5 +1,8 @@
 package jacamo.model;
 
+/**
+ * Model for the defintion of an agent instance used within a MAS.
+ */
 public class AgentDefinition {
   private final String name;
   private final String type;

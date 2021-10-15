@@ -1,5 +1,8 @@
 package jacamo.model;
 
+/**
+ * Helper static class that serializes the models using the jacamo syntax.
+ */
 public class JacamoSerializer {
 
   public static String toJacamoString(AgentDefinition def){

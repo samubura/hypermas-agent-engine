@@ -9,13 +9,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
-class JacamoFileWriter implements JacamoStorageWriter {
+public class JacamoFileWriter implements JacamoStorageWriter {
   private final Path agentFolder;
-  private final Path jacamoRootFolder;
+  private final Path jcmFolder;
   public static final String CHARSET = "UTF-8";
 
   public JacamoFileWriter(Path jacamoRoot){
-    this.jacamoRootFolder = jacamoRoot;
+    this.jcmFolder = Path.of(jacamoRoot.toString(), "src", "jcm");
     this.agentFolder = Path.of(jacamoRoot.toString(), "src", "agt");
   }
 
@@ -34,7 +34,7 @@ class JacamoFileWriter implements JacamoStorageWriter {
   }
 
   private File getMasFile(String masId){
-    return Path.of(jacamoRootFolder.toString(), masId+".jcm").toFile();
+    return Path.of(jcmFolder.toString(), masId+".jcm").toFile();
   }
 
   private boolean writeFile(File file, String content){

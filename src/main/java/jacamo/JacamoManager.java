@@ -1,27 +1,34 @@
 package jacamo;
 
-import jacamo.storage.JacamoStorage;
-import jacamo.storage.JacamoStorageInterface;
+import jacamo.storage.JacamoFileWriter;
+import jacamo.storage.JacamoStorageWriter;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.Optional;
 
+/**
+ * A Singleton to manage all jacamo related stuff.
+ * Esxposes a <a href="#{@link}">{@link JacamoStorageWriter}</a> to manage the persistent data used by the jacamo application and
+ * methods to run and stop a MAS.
+ */
 public class JacamoManager {
 
-  private static final Path JACAMO_ROOT_FOLDER = FileSystems.getDefault().getPath("jacamo-app");
+  private static final Path JACAMO_ROOT_FOLDER = FileSystems.getDefault().getPath("jacamo-rest");
 
-  private static final String RESERVED_AGENT_NAME = "sample";
-  private static final String RESERVED_MAS_NAME = "sample";
+  private static final String RESERVED_AGENT_NAME = "empty";
+  private static final String RESERVED_MAS_NAME = "default";
   private static JacamoManager INSTANCE = null;
 
-  private final JacamoStorageInterface storage;
-  private Optional<String> runningMasId;
+  private final JacamoStorageWriter storage;
   private Optional<Process> runningMasProcess;
   private final String runnableCommand;
 
+  /**
+   * Lazily instantiate the singleton instance and return it.
+   * @return the singleton instance of the JacamoManager.
+   */
   public static JacamoManager getInstance(){
     if(INSTANCE == null){
       INSTANCE = new JacamoManager();
@@ -30,28 +37,38 @@ public class JacamoManager {
   }
 
   private JacamoManager(){
-    this.runningMasId = Optional.empty();
-    this.storage = new JacamoStorage(JACAMO_ROOT_FOLDER);
+    this.storage = new JacamoFileWriter(JACAMO_ROOT_FOLDER);
     this.runnableCommand = getRunnableCommand();
   }
 
-  public JacamoStorageInterface getStorage(){
+  /**
+   * Gives access to the storage used by this JacamoManager.
+   * @return the JacamoStorageWriter used to save agents and mas.
+   */
+  public JacamoStorageWriter getStorage(){
     return this.storage;
   }
 
+  /**
+   * Check if there is alredy a MAS running.
+   * @return true if there is already a MAS running.
+   */
   public boolean isMasRunning() {
-    return this.runningMasId.isPresent();
+    return this.runningMasProcess.isPresent();
   }
 
+  /**
+   * Starts the Mas specified by the id.
+   * @param id the id of the Mas to be executed.
+   */
   public void runMas(String id){
     System.out.println("Starting mas " + id);
     if (!this.isMasRunning()) {
-      this.runningMasId = Optional.of(id);
       try {
         this.runningMasProcess = Optional.of(
           new ProcessBuilder()
             .directory(JACAMO_ROOT_FOLDER.toFile())
-            .command(runnableCommand, "run", "--args", id+".jcm", "-q", "--console=\"plain\"")
+            .command(runnableCommand, "run", "--args", "/src/jcm"+id+".jcm")
             .redirectErrorStream(true)
             .start()
         );
@@ -61,10 +78,12 @@ public class JacamoManager {
     }
   }
 
-  public void stopMas(String id){
-    System.out.println("mas "+ id +" stopped");
+  /**
+   * Stops the mas that is currently in execution.
+   */
+  public void stopMas(){
+    System.out.println("mas stopped");
     if (this.isMasRunning()){
-      this.runningMasId = Optional.empty();
       this.runningMasProcess
         .map(Process::descendants)
         .ifPresent(processHandleStream -> processHandleStream.forEach(ProcessHandle::destroy));
@@ -72,14 +91,20 @@ public class JacamoManager {
     }
   }
 
-  public Optional<String> getCurrentRunning(){
-    return this.runningMasId;
-  }
-
+  /**
+   * Checks whether the provided id for an agent is valid.
+   * @param id the id of the new agent.
+   * @return true if the id is considered a valid one.
+   */
   public boolean acceptAgentId(String id) {
     return !id.equals(RESERVED_AGENT_NAME);
   }
 
+  /**
+   * Checks wheter the provided id for a MAS is valid.
+   * @param id the id of the new MAS.
+   * @return true if the id is considered a valid one.
+   */
   public boolean acceptMasId(String id){
     return !id.equals(RESERVED_MAS_NAME);
   }

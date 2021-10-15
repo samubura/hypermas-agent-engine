@@ -36,50 +36,25 @@ public class EngineRouter {
         ctx.next();
       });
 
-    router.get("/agents")
-      .produces(APPLICATION_JSON)
-      .handler(this::handleGetAgentList);
-
     router.post("/agents")
       .consumes(APPLICATION_JSON)
       .produces(APPLICATION_JSON)
       .handler(this::handlePostAgent);
-
-    router.get("/agents/:agentId")
-      .produces(APPLICATION_JSON)
-      .handler(this::handleGetAgent);
-
-    router.get("/mas")
-      .produces(APPLICATION_JSON)
-      .handler(this::handleGetMasList);
 
     router.post("/mas")
       .consumes(APPLICATION_JSON)
       .produces(APPLICATION_JSON)
       .handler(this::handlePostMas);
 
-    router.get("/mas/:masId")
-      .produces(APPLICATION_JSON)
-      .handler(this::handleGetMas);
-
-    router.put("/mas/:masId/run")
+    router.put("/engine/run/:masId")
       .produces(APPLICATION_JSON)
       .handler(this::handleRunMas);
 
-    router.put("/mas/:masId/stop")
+    router.put("/engine/stop")
       .produces(APPLICATION_JSON)
       .handler(this::handleStopMas);
 
     return router;
-  }
-
-  private void handleGetAgentList(RoutingContext ctx) {
-    List<String> agents = new ArrayList<>(jacamoManager.getStorage().getAvailableAgents());
-    ctx.response().setStatusCode(HttpResponseStatus.OK.code())
-      .end(new JsonObject()
-        .put("agents", new JsonArray(agents))
-        .encode()
-      );
   }
 
   private void handlePostAgent(RoutingContext ctx) {
@@ -101,30 +76,6 @@ public class EngineRouter {
       .putHeader("Location", ctx.normalizedPath()+"/"+id)
       .setStatusCode(HttpResponseStatus.CREATED.code())
       .end(getAgentSourceDTO(agent, xml).encode());
-  }
-
-  private void handleGetAgent(RoutingContext ctx) {
-    String id = ctx.pathParam("agentId");
-
-    Optional<AgentSource> agent = jacamoManager.getStorage().getAgent(id);
-    if(agent.isEmpty()){
-        ctx.response().setStatusCode(HttpResponseStatus.NOT_FOUND.code()).end();
-        return;
-    }
-    String xml = "<xml></xml>"; //TODO retrieve this
-
-    ctx.response()
-      .setStatusCode(HttpResponseStatus.OK.code())
-      .end(getAgentSourceDTO(agent.get(), xml).encode());
-  }
-
-  private void handleGetMasList(RoutingContext ctx) {
-    List<String> masList = new ArrayList<>(jacamoManager.getStorage().getAvailableMas());
-    ctx.response().setStatusCode(HttpResponseStatus.OK.code())
-      .end(new JsonObject()
-        .put("mas", new JsonArray(masList))
-        .encode()
-      );
   }
 
   private void handlePostMas(RoutingContext ctx){
@@ -158,25 +109,6 @@ public class EngineRouter {
       );
   }
 
-  private void handleGetMas(RoutingContext ctx) {
-    String masId = ctx.pathParam("masId");
-
-    Optional<MasDefinition> mas = jacamoManager.getStorage().getMas(masId);
-    if(mas.isEmpty()){
-      ctx.response().setStatusCode(HttpResponseStatus.NOT_FOUND.code()).end();
-      return;
-    }
-
-    //TODO retrieve the running status from the JacamoManager
-    boolean isRunning = false;
-
-    ctx.response()
-      .setStatusCode(HttpResponseStatus.OK.code())
-      .end(this.getMasDTO(mas.get(), isRunning)
-        .encode()
-      );
-  }
-
   private void handleRunMas(RoutingContext ctx) {
     if(this.jacamoManager.isMasRunning()){
       ctx.response().setStatusCode(HttpResponseStatus.FORBIDDEN.code()).end();
@@ -191,7 +123,7 @@ public class EngineRouter {
       ctx.response().setStatusCode(HttpResponseStatus.FORBIDDEN.code()).end();
       return;
     }
-    this.jacamoManager.stopMas(ctx.pathParam("masId"));
+    this.jacamoManager.stopMas();
     ctx.response().setStatusCode(HttpResponseStatus.OK.code()).end();
   }
 

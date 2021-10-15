@@ -2,6 +2,9 @@ package jacamo.model;
 
 import java.util.Set;
 
+/**
+ * Model for the definition of MAS configuration.
+ */
 public class MasDefinition {
 
   private final String id;
