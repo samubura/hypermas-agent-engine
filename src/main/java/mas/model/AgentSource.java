@@ -1,4 +1,6 @@
-package jacamo.model;
+package mas.model;
+
+import java.util.Objects;
 
 /**
  * Model for the definition of an agent source. Contains the id of the agent and the source code.
@@ -18,5 +20,19 @@ public class AgentSource {
 
   public String getCode() {
     return code;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    AgentSource that = (AgentSource) o;
+    return id.equals(that.id) &&
+      code.equals(that.code);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, code);
   }
 }

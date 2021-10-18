@@ -1,1 +1,1 @@
-rootProject.name = "hypermas-agent-engine"
+rootProject.name = "mas-rest-runtime"
