@@ -12,7 +12,7 @@ import java.net.http.HttpResponse;
 
 public class JacamoRestBridge implements MasBridge {
 
-  private static final String BASE_PATH = "http://localhost:9000"; //TODO set this somewhere in a config
+  private static final String BASE_PATH = "http://192.168.150.2:9000"; //TODO set this somewhere in a config
 
   private final HttpClient client;
 
