@@ -1,6 +1,8 @@
 package mas.jacamo;
 
 import mas.SingleMasManager;
+import mas.exceptions.AgentNotDefinedException;
+import mas.exceptions.MasNotValidException;
 import mas.model.AgentDefinition;
 import mas.model.AgentSource;
 import mas.model.MasDefinition;
@@ -17,6 +19,7 @@ import mas.storage.jacamo.JacamoStorageManager;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class JacamoManager implements SingleMasManager {
 
@@ -44,34 +47,38 @@ public class JacamoManager implements SingleMasManager {
   }
 
   @Override
-  public void startRuntime(MasDefinition mas) throws MasAlreadyRunningException, MasStartFailureException, IOException {
+  public void startRuntime(MasDefinition mas) throws MasAlreadyRunningException, MasStartFailureException, IOException, MasNotValidException {
     //Overwrite mas name to write always to same location
     mas = new MasDefinition(MAS_NAME, mas.getAgents());
+    //check if the mas is correctly defined
+    if(!this.validateMasDefinition(mas)){
+      throw new MasNotValidException("Mas is not well defined");
+    }
     //save the mas file
     try {
       this.storage.saveMas(mas);
     } catch (ReservedIdException e) {
       //this cannot happen since the name is hardcoded
     }
-    //TODO add business logic controls
+    //start the subprocess
     this.runtime.start(mas);
   }
 
   @Override
   public void stopRuntime() throws NoMasRunningException {
-    //TODO add business logic controls
     this.runtime.stop();
   }
 
   @Override
-  public void addAgentToRuntime(AgentDefinition agent) throws NoMasRunningException, AgentNameNotUniqueException {
-    //TODO business logic controls
+  public void addAgentToRuntime(AgentDefinition agent) throws NoMasRunningException, AgentNameNotUniqueException, AgentNotDefinedException {
+    if(!this.validateAgentDefinition(agent)){
+      throw new AgentNotDefinedException(agent.getType());
+    }
     this.runtime.addAgent(agent);
   }
 
   @Override
   public void removeAgentFromRuntime(String agentName) throws NoMasRunningException {
-    //TODO business logic controls
     this.runtime.removeAgent(agentName);
   }
 
@@ -98,6 +105,16 @@ public class JacamoManager implements SingleMasManager {
   @Override
   public void saveAgent(AgentSource agent) throws IOException, ReservedIdException {
     storage.saveAgent(agent);
+  }
+
+  private boolean validateMasDefinition(MasDefinition mas) {
+    return this.storage.getAvailableAgents().containsAll(
+      mas.getAgents().stream().map(AgentDefinition::getType).collect(Collectors.toSet())
+    );
+  }
+
+  private boolean validateAgentDefinition(AgentDefinition agent) {
+    return this.storage.getAvailableAgents().contains(agent.getType());
   }
 
 

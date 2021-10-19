@@ -8,6 +8,8 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import mas.SingleMasManager;
+import mas.exceptions.AgentNotDefinedException;
+import mas.exceptions.MasNotValidException;
 import mas.jacamo.JacamoManager;
 import mas.model.AgentDefinition;
 import mas.model.AgentSource;
@@ -166,6 +168,10 @@ public class EngineRouter {
       ctx.response().setStatusCode(HttpResponseStatus.INTERNAL_SERVER_ERROR.code())
         .setStatusMessage("Cannot save run configuration")
         .end();
+    } catch (MasNotValidException e) {
+      ctx.response().setStatusCode(HttpResponseStatus.FORBIDDEN.code())
+        .setStatusMessage(e.getMessage())
+        .end();
     }
   }
 
@@ -208,6 +214,10 @@ public class EngineRouter {
     } catch (AgentNameNotUniqueException e) {
       ctx.response().setStatusCode(HttpResponseStatus.BAD_REQUEST.code())
         .setStatusMessage("Name must be unique")
+        .end();
+    } catch (AgentNotDefinedException e) {
+      ctx.response().setStatusCode(HttpResponseStatus.BAD_REQUEST.code())
+        .setStatusMessage(e.agentType + " is not defined")
         .end();
     }
   }

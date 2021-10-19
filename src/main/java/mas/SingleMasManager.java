@@ -1,5 +1,7 @@
 package mas;
 
+import mas.exceptions.AgentNotDefinedException;
+import mas.exceptions.MasNotValidException;
 import mas.model.AgentDefinition;
 import mas.model.AgentSource;
 import mas.model.MasDefinition;
@@ -14,11 +16,11 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface SingleMasManager {
-  void startRuntime(MasDefinition mas) throws MasAlreadyRunningException, MasStartFailureException, IOException;
+  void startRuntime(MasDefinition mas) throws MasAlreadyRunningException, MasStartFailureException, IOException, MasNotValidException;
 
   void stopRuntime() throws NoMasRunningException;
 
-  void addAgentToRuntime(AgentDefinition agent) throws NoMasRunningException, AgentNameNotUniqueException;
+  void addAgentToRuntime(AgentDefinition agent) throws NoMasRunningException, AgentNameNotUniqueException, AgentNotDefinedException;
 
   void removeAgentFromRuntime(String agentName) throws NoMasRunningException;
 
