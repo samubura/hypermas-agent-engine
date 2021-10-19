@@ -1,5 +1,7 @@
 package mas.runtime.bridge.jacamo;
 
+import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonObject;
 import mas.model.AgentDefinition;
 import mas.runtime.bridge.MasBridge;
 import mas.runtime.bridge.exception.FailedCommunicationException;
@@ -23,8 +25,9 @@ public class JacamoRestBridge implements MasBridge {
   @Override
   public void addAgent(AgentDefinition agent) throws FailedCommunicationException {
     HttpRequest req = HttpRequest.newBuilder()
-      .uri(URI.create(BASE_PATH+"/agents/"+agent.getName()+"?type="+agent.getType()))
-      .POST(HttpRequest.BodyPublishers.noBody())
+      .uri(URI.create(BASE_PATH+"/agents/"+agent.getName()))
+      .header("Content-Type", "application/json")
+      .POST(HttpRequest.BodyPublishers.ofString(toJson(agent)))
       .build();
     try {
       HttpResponse<String> res = client.send(req, HttpResponse.BodyHandlers.ofString());
@@ -52,5 +55,12 @@ public class JacamoRestBridge implements MasBridge {
     } catch (IOException | InterruptedException e) {
       throw new FailedCommunicationException();
     }
+  }
+
+  private String toJson(AgentDefinition agent){
+    return new JsonObject()
+      .put("name", agent.getName())
+      .put("type", agent.getType())
+      .encode();
   }
 }
