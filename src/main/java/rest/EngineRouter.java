@@ -2,7 +2,6 @@ package rest;
 
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.vertx.core.Vertx;
-import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
@@ -120,7 +119,8 @@ public class EngineRouter {
   }
 
   private void handlePutAgent(RoutingContext ctx) {
-    AgentSource agent = agentSourceFromJSON(ctx.getBodyAsJson());
+    AgentSource agent = new AgentSource(ctx.pathParam("id"),
+      ctx.getBodyAsJson().getString("code"));
     try {
       masManager.saveAgent(agent);
       ctx.response()
@@ -161,6 +161,10 @@ public class EngineRouter {
     } catch (MasStartFailureException e) {
       ctx.response().setStatusCode(HttpResponseStatus.INTERNAL_SERVER_ERROR.code())
         .setStatusMessage("Runtime failed to run")
+        .end();
+    } catch (IOException e) {
+      ctx.response().setStatusCode(HttpResponseStatus.INTERNAL_SERVER_ERROR.code())
+        .setStatusMessage("Cannot save run configuration")
         .end();
     }
   }
@@ -217,8 +221,8 @@ public class EngineRouter {
       ctx.response().setStatusCode(HttpResponseStatus.OK.code())
         .end(getAgentDefinitionDTO(agent.get()).encode());
     } else {
-      ctx.response().setStatusCode(HttpResponseStatus.FORBIDDEN.code())
-        .setStatusMessage("No runtime is running at the moment")
+      ctx.response().setStatusCode(HttpResponseStatus.NOT_FOUND.code())
+        .setStatusMessage("No agent with the given name is running")
         .end();
     }
     } catch (NoMasRunningException e) {
@@ -230,8 +234,17 @@ public class EngineRouter {
 
   private void handleDeleteRuntimeAgentByName(RoutingContext ctx) {
     try {
-      this.masManager.removeAgentFromRuntime(ctx.pathParam("name"));
-      ctx.response().setStatusCode(HttpResponseStatus.OK.code()).end();
+      Optional<AgentDefinition> agent = this.masManager.getRuntimeAgents().stream()
+        .filter(a -> a.getName().equals(ctx.pathParam("name")))
+        .findFirst();
+      if(agent.isPresent()) {
+        this.masManager.removeAgentFromRuntime(ctx.pathParam("name"));
+        ctx.response().setStatusCode(HttpResponseStatus.OK.code()).end();
+      } else {
+        ctx.response().setStatusCode(HttpResponseStatus.NOT_FOUND.code())
+          .setStatusMessage("No agent with the given name is running")
+          .end();
+      }
     } catch (NoMasRunningException e) {
       ctx.response().setStatusCode(HttpResponseStatus.FORBIDDEN.code())
         .setStatusMessage("No runtime is running at the moment")

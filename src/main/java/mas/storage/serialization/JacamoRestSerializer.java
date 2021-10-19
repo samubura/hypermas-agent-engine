@@ -6,7 +6,7 @@ import mas.model.MasDefinition;
 /**
  * Helper static class that serializes the models using the jacamo syntax.
  */
-class JacamoSerializer implements MasSerializer {
+class JacamoRestSerializer implements MasSerializer {
 
   public String toString(AgentDefinition def){
       return "\tagent "+def.getName() + " : " + def.getType() + ".asl\n";
@@ -16,6 +16,7 @@ class JacamoSerializer implements MasSerializer {
     return def.getAgents().stream()
       .map(this::toString)
       .reduce("mas "+def.getId()+" {\n", (s, n) -> s+n)
+      .concat("\tplatform: jacamo.rest.JCMRest(\"--main 2181 --restPort 9000\")\n")
       .concat("}\n");
   }
 }

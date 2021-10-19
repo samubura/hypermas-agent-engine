@@ -1,7 +1,5 @@
 package mas.runtime.jacamo;
 
-import mas.model.AgentDefinition;
-import mas.model.exceptions.AgentNameNotUniqueException;
 import mas.model.MasDefinition;
 import mas.runtime.AbstractRuntimeManager;
 import mas.runtime.bridge.MasBridge;
@@ -12,6 +10,7 @@ import mas.runtime.exceptions.NoMasRunningException;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.concurrent.TimeUnit;
 
 public class JacamoRuntimeManager extends AbstractRuntimeManager {
 
@@ -35,11 +34,13 @@ public class JacamoRuntimeManager extends AbstractRuntimeManager {
   public void start(MasDefinition mas) throws MasStartFailureException, MasAlreadyRunningException {
     super.start(mas);
     try {
+      Path masPath = Path.of("src", "jcm", mas.getId()+".jcm");
       this.masProcess = new ProcessBuilder()
-          .directory(EXECUTION_FOLDER.toFile())
-          .command(runnableCommand, "run", "--args", "/src/jcm"+mas.getId()+".jcm")
-          .redirectErrorStream(true)
-          .start();
+        .inheritIO()
+        .directory(EXECUTION_FOLDER.toFile())
+        .command(runnableCommand, "run", "--args", masPath.toString(), "-q", "--console=plain")
+        .redirectErrorStream(true)
+        .start();
     } catch (IOException e) {
       throw new MasStartFailureException(e.getMessage());
     }

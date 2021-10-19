@@ -39,7 +39,7 @@ class JacamoFileReader implements StorageReader {
 
   @Override
   public Set<String> getAvailableAgents() {
-    return getNamesFromFileSystem(jcmFolder, (dir,name) -> name.endsWith(".asl"));
+    return getNamesFromFileSystem(agentFolder, (dir,name) -> name.endsWith(".asl"));
   }
 
   @Override

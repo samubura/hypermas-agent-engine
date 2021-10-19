@@ -20,7 +20,7 @@ class JacamoFileWriter implements StorageWriter {
   public JacamoFileWriter(Path jcmFolder, Path agentFolder, String charset){
     this.jcmFolder = jcmFolder;
     this.agentFolder = agentFolder;
-    this.serializer = MasSerializerFactory.createJacamoSerializer();
+    this.serializer = MasSerializerFactory.createJacamoRestSerializer();
     this.charset = charset;
   }
 

@@ -1,6 +1,7 @@
 package mas.model;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -14,7 +15,7 @@ public class MasDefinition {
 
   public MasDefinition(String id, Set<AgentDefinition> agents){
     this.id = id;
-    this.agents = agents;
+    this.agents = new HashSet<>(agents);
   }
 
   public String getId(){

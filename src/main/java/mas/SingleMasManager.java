@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface SingleMasManager {
-  void startRuntime(MasDefinition mas) throws MasAlreadyRunningException, MasStartFailureException;
+  void startRuntime(MasDefinition mas) throws MasAlreadyRunningException, MasStartFailureException, IOException;
 
   void stopRuntime() throws NoMasRunningException;
 

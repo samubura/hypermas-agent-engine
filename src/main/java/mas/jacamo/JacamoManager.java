@@ -20,7 +20,7 @@ import java.util.Set;
 
 public class JacamoManager implements SingleMasManager {
 
-  private static String MAS_NAME = "mas";
+  private static String MAS_NAME = "runtime";
 
   private static JacamoManager INSTANCE = null;
 
@@ -44,9 +44,15 @@ public class JacamoManager implements SingleMasManager {
   }
 
   @Override
-  public void startRuntime(MasDefinition mas) throws MasAlreadyRunningException, MasStartFailureException {
+  public void startRuntime(MasDefinition mas) throws MasAlreadyRunningException, MasStartFailureException, IOException {
     //Overwrite mas name to write always to same location
     mas = new MasDefinition(MAS_NAME, mas.getAgents());
+    //save the mas file
+    try {
+      this.storage.saveMas(mas);
+    } catch (ReservedIdException e) {
+      //this cannot happen since the name is hardcoded
+    }
     //TODO add business logic controls
     this.runtime.start(mas);
   }
