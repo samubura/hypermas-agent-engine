@@ -15,6 +15,7 @@ import mas.model.AgentDefinition;
 import mas.model.AgentSource;
 import mas.model.MasDefinition;
 import mas.model.exceptions.AgentNameNotUniqueException;
+import mas.runtime.bridge.exception.FailedCommunicationException;
 import mas.runtime.exceptions.MasAlreadyRunningException;
 import mas.runtime.exceptions.MasStartFailureException;
 import mas.runtime.exceptions.NoMasRunningException;
@@ -219,6 +220,10 @@ public class EngineRouter {
       ctx.response().setStatusCode(HttpResponseStatus.BAD_REQUEST.code())
         .setStatusMessage(e.agentType + " is not defined")
         .end();
+    } catch (FailedCommunicationException e) {
+      ctx.response().setStatusCode(HttpResponseStatus.FAILED_DEPENDENCY.code())
+        .setStatusMessage("Failed to add the agent to the runtime")
+        .end();
     }
   }
 
@@ -258,6 +263,10 @@ public class EngineRouter {
     } catch (NoMasRunningException e) {
       ctx.response().setStatusCode(HttpResponseStatus.FORBIDDEN.code())
         .setStatusMessage("No runtime is running at the moment")
+        .end();
+    } catch (FailedCommunicationException e) {
+      ctx.response().setStatusCode(HttpResponseStatus.FAILED_DEPENDENCY.code())
+        .setStatusMessage("Failed to remove agent from runtime")
         .end();
     }
   }

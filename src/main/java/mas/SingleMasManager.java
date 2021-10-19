@@ -6,6 +6,7 @@ import mas.model.AgentDefinition;
 import mas.model.AgentSource;
 import mas.model.MasDefinition;
 import mas.model.exceptions.AgentNameNotUniqueException;
+import mas.runtime.bridge.exception.FailedCommunicationException;
 import mas.runtime.exceptions.MasAlreadyRunningException;
 import mas.runtime.exceptions.MasStartFailureException;
 import mas.runtime.exceptions.NoMasRunningException;
@@ -20,9 +21,9 @@ public interface SingleMasManager {
 
   void stopRuntime() throws NoMasRunningException;
 
-  void addAgentToRuntime(AgentDefinition agent) throws NoMasRunningException, AgentNameNotUniqueException, AgentNotDefinedException;
+  void addAgentToRuntime(AgentDefinition agent) throws NoMasRunningException, AgentNameNotUniqueException, AgentNotDefinedException, FailedCommunicationException;
 
-  void removeAgentFromRuntime(String agentName) throws NoMasRunningException;
+  void removeAgentFromRuntime(String agentName) throws NoMasRunningException, FailedCommunicationException;
 
   Set<AgentDefinition> getRuntimeAgents() throws NoMasRunningException;
 

@@ -8,6 +8,7 @@ import mas.model.AgentSource;
 import mas.model.MasDefinition;
 import mas.model.exceptions.AgentNameNotUniqueException;
 import mas.runtime.RuntimeManager;
+import mas.runtime.bridge.exception.FailedCommunicationException;
 import mas.runtime.exceptions.MasAlreadyRunningException;
 import mas.runtime.exceptions.MasStartFailureException;
 import mas.runtime.exceptions.NoMasRunningException;
@@ -70,7 +71,7 @@ public class JacamoManager implements SingleMasManager {
   }
 
   @Override
-  public void addAgentToRuntime(AgentDefinition agent) throws NoMasRunningException, AgentNameNotUniqueException, AgentNotDefinedException {
+  public void addAgentToRuntime(AgentDefinition agent) throws NoMasRunningException, AgentNameNotUniqueException, AgentNotDefinedException, FailedCommunicationException {
     if(!this.validateAgentDefinition(agent)){
       throw new AgentNotDefinedException(agent.getType());
     }
@@ -78,7 +79,7 @@ public class JacamoManager implements SingleMasManager {
   }
 
   @Override
-  public void removeAgentFromRuntime(String agentName) throws NoMasRunningException {
+  public void removeAgentFromRuntime(String agentName) throws NoMasRunningException, FailedCommunicationException {
     this.runtime.removeAgent(agentName);
   }
 

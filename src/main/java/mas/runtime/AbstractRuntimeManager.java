@@ -5,6 +5,7 @@ import mas.model.exceptions.AgentNameNotUniqueException;
 import mas.model.MasDefinition;
 import mas.model.MasRuntime;
 import mas.runtime.bridge.MasBridge;
+import mas.runtime.bridge.exception.FailedCommunicationException;
 import mas.runtime.exceptions.MasAlreadyRunningException;
 import mas.runtime.exceptions.MasStartFailureException;
 import mas.runtime.exceptions.NoMasRunningException;
@@ -44,25 +45,23 @@ public abstract class AbstractRuntimeManager implements RuntimeManager{
   }
 
   @Override
-  public void addAgent(AgentDefinition agent) throws NoMasRunningException, AgentNameNotUniqueException {
+  public void addAgent(AgentDefinition agent) throws NoMasRunningException, AgentNameNotUniqueException, FailedCommunicationException {
     if(!this.isMasRunning()){
       throw new NoMasRunningException();
     }
+    bridge.addAgent(agent);
     if(this.currentMas.isPresent()){
       this.currentMas.get().addAgent(agent);
     }
-
-    bridge.addAgent(agent);
   }
 
   @Override
-  public void removeAgent(String agentName) throws NoMasRunningException {
+  public void removeAgent(String agentName) throws NoMasRunningException, FailedCommunicationException {
     if(!this.isMasRunning()){
       throw new NoMasRunningException();
     }
-    this.currentMas.ifPresent(m -> m.removeAgent(agentName));
-
     bridge.removeAgent(agentName);
+    this.currentMas.ifPresent(m -> m.removeAgent(agentName));
   }
 
   @Override

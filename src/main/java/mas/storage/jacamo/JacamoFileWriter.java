@@ -31,7 +31,7 @@ class JacamoFileWriter implements StorageWriter {
 
   @Override
   public void saveAgent(AgentSource agent) throws IOException {
-    writeFile(this.getAgentFile(agent.getId()), agent.getCode());
+    writeFile(this.getAgentFile(agent.getId()), serializer.toString(agent));
   }
 
   private File getAgentFile(String agentId){
@@ -45,6 +45,4 @@ class JacamoFileWriter implements StorageWriter {
   private void writeFile(File file, String content) throws IOException {
       FileUtils.writeStringToFile(file, content, charset);
   }
-
-
 }
