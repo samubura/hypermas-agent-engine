@@ -28,7 +28,9 @@ public class JacamoRestBridge implements MasBridge {
       .build();
     try {
       HttpResponse<String> res = client.send(req, HttpResponse.BodyHandlers.ofString());
-      if(res.statusCode()>400){
+      System.out.println(res.toString());
+      System.out.println("Request completed "+req.toString());
+      if(res.statusCode() > 400) {
         throw new FailedCommunicationException();
       }
     } catch (IOException | InterruptedException e) {

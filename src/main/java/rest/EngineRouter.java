@@ -83,7 +83,7 @@ public class EngineRouter {
     router.post("/runtime/agents")
       .produces(APPLICATION_JSON)
       .consumes(APPLICATION_JSON)
-      .handler(this::handleAddRuntimeAgent);
+      .blockingHandler(this::handleAddRuntimeAgent);
 
     router.get("/runtime/agents/:name")
       .produces(APPLICATION_JSON)
@@ -91,7 +91,7 @@ public class EngineRouter {
 
     router.delete("/runtime/agents/:name")
       .produces(APPLICATION_JSON)
-      .handler(this::handleDeleteRuntimeAgentByName);
+      .blockingHandler(this::handleDeleteRuntimeAgentByName);
 
     return router;
   }
