@@ -1,58 +1,54 @@
 package mas.runtime.bridge.jacamo;
 
-import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import mas.model.AgentDefinition;
 import mas.runtime.bridge.MasBridge;
 import mas.runtime.bridge.exception.FailedCommunicationException;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClientBuilder;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+
 
 public class JacamoRestBridge implements MasBridge {
 
-  private static final String BASE_PATH = "http://192.168.150.2:9000"; //TODO set this somewhere in a config
+  private static final String BASE_PATH = "http://localhost:34567"; //TODO set this somewhere in a config
 
   private final HttpClient client;
 
   public JacamoRestBridge(){
-    this.client = HttpClient.newHttpClient();
+    this.client = HttpClientBuilder.create().build();
   }
 
   @Override
   public void addAgent(AgentDefinition agent) throws FailedCommunicationException {
-    HttpRequest req = HttpRequest.newBuilder()
-      .uri(URI.create(BASE_PATH+"/agents/"+agent.getName()))
-      .header("Content-Type", "application/json")
-      .POST(HttpRequest.BodyPublishers.ofString(toJson(agent)))
-      .build();
+    HttpPost req = new HttpPost(URI.create(BASE_PATH+"/agents/"+agent.getName()));
+    req.setEntity(new StringEntity(toJson(agent), ContentType.APPLICATION_JSON));
     try {
-      HttpResponse<String> res = client.send(req, HttpResponse.BodyHandlers.ofString());
-      System.out.println(res.toString());
-      System.out.println("Request completed "+req.toString());
-      if(res.statusCode() > 400) {
+      HttpResponse res = client.execute(req);
+      if(res.getStatusLine().getStatusCode() > 400) {
         throw new FailedCommunicationException();
       }
-    } catch (IOException | InterruptedException e) {
+    } catch (IOException e) {
       throw new FailedCommunicationException();
     }
   }
 
   @Override
   public void removeAgent(String agentName) throws FailedCommunicationException {
-    HttpRequest req = HttpRequest.newBuilder()
-      .uri(URI.create(BASE_PATH+"/agents/"+agentName))
-      .DELETE()
-      .build();
+    HttpDelete req = new HttpDelete(URI.create(BASE_PATH+"/agents/"+agentName));
     try {
-      HttpResponse<String> res = client.send(req, HttpResponse.BodyHandlers.ofString());
-      if(res.statusCode()>400){
+      HttpResponse res = client.execute(req);
+      if(res.getStatusLine().getStatusCode()>400){
         throw new FailedCommunicationException();
       }
-    } catch (IOException | InterruptedException e) {
+    } catch (IOException e) {
       throw new FailedCommunicationException();
     }
   }

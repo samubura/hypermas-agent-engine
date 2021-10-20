@@ -29,6 +29,7 @@ application {
 
 dependencies {
   implementation("commons-io:commons-io:2.11.0")
+  implementation("org.apache.httpcomponents:httpclient:4.5.13")
   implementation(platform("io.vertx:vertx-stack-depchain:$vertxVersion"))
   implementation("io.vertx:vertx-web")
   testImplementation("io.vertx:vertx-junit5")

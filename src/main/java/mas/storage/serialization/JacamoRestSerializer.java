@@ -23,7 +23,7 @@ class JacamoRestSerializer implements MasSerializer {
     return def.getAgents().stream()
       .map(this::toString)
       .reduce("mas "+def.getId()+" {\n", (s, n) -> s+n)
-      .concat("\tplatform: jacamo.rest.JCMRest(\"--main 2181 --restPort 9000\")\n") //TODO set this somewhere in a config
+      .concat("\tplatform: jacamo.rest.JCMRest(\"--main 2181 --restPort 34567\")\n") //TODO set this somewhere in a config
       .concat("}\n");
   }
 }
