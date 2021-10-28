@@ -10,7 +10,7 @@ import mas.model.MasDefinition;
 class JacamoRestSerializer implements MasSerializer {
 
   public String toString(AgentSource source){
-    return source.getCode() +
+    return source.getCode() + "\n\n" +
       "{ include(\"$jacamoJar/templates/common-cartago.asl\") }\n" +
       "{ include(\"$jacamoJar/templates/common-moise.asl\") }\n";
   }
