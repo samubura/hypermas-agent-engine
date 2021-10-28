@@ -28,19 +28,21 @@ public abstract class AbstractRuntimeManager implements RuntimeManager{
 
   @Override
   public void start(MasDefinition mas) throws MasAlreadyRunningException, MasStartFailureException {
-    System.out.println("Starting mas " + mas.getId());
     if(this.isMasRunning()){
+      System.out.println("Cannot Start mas, another is already running");
       throw new MasAlreadyRunningException(this.currentMas.get().getId());
     }
+    System.out.println("Starting mas " + mas.getId());
     this.currentMas = Optional.of(new MasRuntime(mas));
   }
 
   @Override
   public void stop() throws NoMasRunningException {
-    System.out.println("mas stopped");
     if(!this.isMasRunning()){
+      System.out.println("Cannot stop, no mas is running");
       throw new NoMasRunningException();
     }
+    System.out.println("Mas stopped");
     this.currentMas = Optional.empty();
   }
 

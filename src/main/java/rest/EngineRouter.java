@@ -39,6 +39,7 @@ public class EngineRouter {
   public Router create(Vertx vertx){
     Router router = Router.router(vertx);
     router.route().handler(BodyHandler.create());
+    router.route().handler(RequestLogger.create());
     router.get("/")
       .produces("text/html")
       .handler(ctx -> ctx.response().end("Hypermedia Agent Engine is running..."));
