@@ -36,8 +36,12 @@ public class RequestLogger implements Handler<RoutingContext> {
   private void log(RoutingContext context, long timestamp, String remoteClient, HttpMethod method, String uri) {
     HttpServerRequest request = context.request();
     int status = request.response().getStatusCode();
-    String body = context.getBodyAsString().replaceAll("(\\r|\\n)", "");
-    body = Json.encodePrettily(Json.decodeValue(body));
+    String body = context.getBodyAsString();
+    if(body != null) {
+      body = Json.encodePrettily(Json.decodeValue(body.replaceAll("(\\r|\\n)", "")));
+    } else {
+      body = "<no body>";
+    }
     String message = String.format("\n%s - - [%s] \"%s %s\" %d  %dms\n %s",
       remoteClient,
       this.dateTimeFormat.format(new Date(timestamp)),
