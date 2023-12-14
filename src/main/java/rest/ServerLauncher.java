@@ -14,7 +14,7 @@ public class ServerLauncher extends AbstractVerticle {
 
     vertx.createHttpServer()
       .requestHandler(engineRouter.create(vertx))
-      .listen(portNumber, "localhost");
+      .listen(portNumber, "0.0.0.0");
 
     System.out.println("Hypermas engine started on port "+portNumber+"...");
   }
